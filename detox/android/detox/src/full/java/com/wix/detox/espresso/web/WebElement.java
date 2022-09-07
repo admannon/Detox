@@ -66,7 +66,7 @@ public class WebElement {
         return getWebViewInteraction().withElement(get()).perform(new SimpleAtom(script)).get();
     }
 
-    public Evaluation runScriptWithArgs(String script, final ArrayList<Object> args) {
+    public Evaluation runScriptWithArgs(String script, final List<Object> args) {
         return getWebViewInteraction().withElement(get()).perform(Atoms.scriptWithArgs(script, args)).get();
     }
 

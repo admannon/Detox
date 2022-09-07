@@ -6,6 +6,7 @@ const { isNumber, isString, isBoolean, isArray, isDefined } = require('../core/t
 const typeCheckInterfaces = {
   'ArrayList<String>': isArray,
   'ArrayList<Object>': isArray,
+  'List<Object>': isArray,
   'Matcher<View>': null, // isOfClass('Matcher') would be better,
   boolean: isBoolean,
   Double: isNumber,
@@ -64,6 +65,7 @@ module.exports = generator({
   supportedTypes: [
     'ArrayList<String>',
     'ArrayList<Object>',
+    'List<Object>',
     'boolean',
     'double',
     'Double',
