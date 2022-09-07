@@ -71,7 +71,7 @@ function isArray({ name }) {
     `
 if (
   (typeof ARG !== 'object') || 
-  (!ARG instanceof Array)
+  (!(ARG instanceof Array))
 ) {
     throw new Error('${name} must be an array, got ' + typeof ARG);
   }
