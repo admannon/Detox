@@ -6,12 +6,15 @@ import com.wix.invoke.parser.JsonParser;
 import com.wix.invoke.types.ClassTarget;
 import com.wix.invoke.types.Invocation;
 import com.wix.invoke.types.InvocationTarget;
+import com.wix.invoke.types.ObjectInstanceTarget;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 
 /**
  * Created by rotemm on 13/10/2016.
@@ -79,6 +82,13 @@ public class JsonParserTest {
         params.add(".*10.0.2.2.*");
         Invocation test = new Invocation(new ClassTarget("com.wix.detox.espresso.EspressoDetox"), "setURLBlacklist", params);
         assertThat(parse("fromJsonTargetInvocationWithListParams.json")).isEqualToComparingFieldByFieldRecursively(test);
+    }
+
+    @Test
+    public void fromJsonTargetInvocationWithTypedArguments() {
+        Invocation test = new Invocation(new ObjectInstanceTarget("com.wix.detox.espresso.web.WebElement"), "runScriptWithArgs",
+                "function(e,s){}", Collections.singletonList("Test"));
+        assertThat(parse("fromJsonTargetInvocationWithTypedArguments.json")).isEqualToComparingFieldByFieldRecursively(test);
     }
 
     public Invocation parseString(String jsonString) {

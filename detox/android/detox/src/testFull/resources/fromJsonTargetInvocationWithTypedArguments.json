@@ -1,0 +1,16 @@
+{
+  "target": {
+	"type": "Espresso",
+	"value": "com.wix.detox.espresso.web.WebElement"
+  },
+  "method": "runScriptWithArgs",
+  "args": [
+	"function(e,s){}",
+	{
+	  "type": "ArrayList<Object>",
+	  "value": [
+		"Test"
+	  ]
+	}
+  ]
+}

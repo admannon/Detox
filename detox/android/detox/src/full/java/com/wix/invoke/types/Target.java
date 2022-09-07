@@ -42,7 +42,9 @@ public abstract class Target {
         this.value = value;
     }
 
-    public Object invoke(Invocation invocation) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public Object invoke(Invocation invocation)
+            throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException,
+            JSONException {
         if (this.value instanceof Invocation) {
             Invocation innerInvocation = (Invocation) this.value;
             this.value = innerInvocation.getTarget().invoke(innerInvocation);

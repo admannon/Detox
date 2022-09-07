@@ -2,6 +2,7 @@ package com.wix.invoke.types;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
+import org.json.JSONException;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -13,7 +14,7 @@ import java.util.LinkedHashMap;
 public class InvocationTest {
 
     @Test
-    public void InvocationArgTypes() {
+    public void InvocationArgTypes() throws JSONException {
         Invocation invocation = new Invocation(new ClassTarget("java.lang.System"), "lineSeparator");
 
         Object[] inputArgs = new Object[7];

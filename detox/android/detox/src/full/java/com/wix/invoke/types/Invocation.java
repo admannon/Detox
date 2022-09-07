@@ -1,15 +1,14 @@
 package com.wix.invoke.types;
 
-import com.wix.invoke.parser.JsonParser;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by rotemm on 10/10/2016.
@@ -32,12 +31,7 @@ public class Invocation {
     public Invocation(JSONObject json) throws JSONException {
         this.target = Target.getTarget(json.getJSONObject("target"));
         this.method = json.getString("method");
-        JSONArray args = json.getJSONArray("args");
-        try {
-            this.setArgs(args);
-        } catch (JSONException e) {
-            throw new RuntimeException("Unable to convert args: " + e);
-        }
+        this.args = unwrapJSON(json.getJSONArray("args"));
     }
 
     public String getMethod() {
@@ -60,81 +54,105 @@ public class Invocation {
         return args;
     }
 
-    public void setArgs(JSONArray args) throws JSONException {
-        Object[] outputArgs = new Object[args.length()];
+    private static Object[] unwrapJSON(JSONArray args) throws JSONException {
+        ArrayList<Object> objects = new ArrayList<>();
         for (int i = 0; i < args.length(); i++) {
-            Object argument = null;
-            if (args.get(i).getClass() == String.class) {
-                argument = args.get(i);
-            } else if(args.get(i).getClass() == JSONArray.class) {
-                JSONArray jsonArray = (JSONArray) args.get(i);
-                List<String> list = new ArrayList<>();
-                for (int j = 0; j < jsonArray.length(); j++) {
-                    list.add(jsonArray.getString(j));
-                }
-                argument = list;
-            } else {
-                JSONObject jsonArgument = args.optJSONObject(i);
-                if (jsonArgument != null && jsonArgument.optString("type") != null) {
-                    String type = jsonArgument.optString("type");
-                    if (type.equals("Integer")) {
-                        argument = jsonArgument.optInt("value");
-                    } else if (type.equals("integer")) {
-                        argument = jsonArgument.optInt("value");
-                    } else if (type.equals("Float")) {
-                        argument = Float.valueOf(jsonArgument.optString("value"));
-                    } else if (type.equals("Double")) {
-                        argument = jsonArgument.optDouble("value");
-                    } else if (type.equals("String")) {
-                        argument = jsonArgument.optString("value");
-                    } else if (type.equals("Boolean")) {
-                        argument = jsonArgument.optBoolean("value");
-                    } else if (type.equals("boolean")) {
-                        argument = jsonArgument.optBoolean("value");
-                    } else if (type.equals("Invocation")) {
-                        argument = new Invocation(jsonArgument.optJSONObject("value"));                        
-                    } else {
-                        throw new RuntimeException("Unhandled arg type" + type);
-                    }
-                }
-            }
-            outputArgs[i] = argument;
+            Object arg = args.opt(i);
+            Object argument = unwrapJsonObject(arg);
+            objects.add(argument);
         }
-
-        this.args = outputArgs;
+        return objects.toArray();
     }
 
-    public void setArgs(Object[] args) {
-        for (int i = 0; i < args.length; i++) {
-            Object argument = args[i];
-            if (argument instanceof HashMap && !((HashMap) argument).isEmpty()) {
-                String type = (String) ((HashMap) argument).get("type");
-                Object value = ((HashMap) argument).get("value");
-                if (type.equals("Integer")) {
-                    argument = (int) value;
-                } else if (type.equals("integer")) {
-                    argument = (int) value;
-                } else if (type.equals("Float")) {
-                    argument = Float.valueOf(value.toString());
-                } else if (type.equals("Double")) {
-                    argument = Double.valueOf(value.toString());
-                } else if (type.equals("String")) {
-                    argument = (String) value;
-                }else if (type.equals("Boolean")) {
-                    argument = ((Boolean) value);
-                } else if (type.equals("boolean")) {
-                    argument = ((Boolean) value).booleanValue();
-                } else if (type.equals("Invocation")) {
-                    JsonParser parser = new JsonParser();
-                    argument = parser.parse((String)value);
-                } else {
-                    throw new RuntimeException("Unhandled arg type" + type);
-                }
-
-                args[i] = argument;
+    @Nullable
+    private static Object unwrapJsonObject(Object arg) throws JSONException {
+        if (arg instanceof JSONArray) {
+            JSONArray jsonArray = (JSONArray) arg;
+            ArrayList<Object> objects = new ArrayList<>();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                Object arg1 = jsonArray.opt(i);
+                Object argument = unwrapJsonObject(arg1);
+                objects.add(argument);
             }
+            return objects;
+        }
+        if (arg instanceof JSONObject) {
+            return unwrapJsonObject(toMap((JSONObject) arg));
         }
 
+        if (!(arg instanceof Map)) {
+            return arg;
+        }
+
+        Map<?, ?> jsonArgument = (Map<?, ?>) arg;
+        Object type = jsonArgument.get("type");
+        Object value = jsonArgument.get("value");
+
+        if (type == null || value == null) {
+            LinkedHashMap<Object, Object> map = new LinkedHashMap<>();
+            for (Object key : jsonArgument.keySet()) {
+                map.put(key, unwrapJsonObject(jsonArgument.get(key)));
+            }
+            return map;
+        }
+
+        if ("Integer".equalsIgnoreCase(type.toString())) {
+            if (value instanceof Number) {
+                return ((Number) value).intValue();
+            } else {
+                try {
+                    return Integer.parseInt(value.toString());
+                } catch (NumberFormatException ignored) {
+                    return 0;
+                }
+            }
+        } else if ("Float".equalsIgnoreCase(type.toString())) {
+            if (value instanceof Number) {
+                return ((Number) value).floatValue();
+            } else {
+                try {
+                    return Float.parseFloat(value.toString());
+                } catch (NumberFormatException ignored) {
+                    return Float.NaN;
+                }
+            }
+        } else if ("Double".equalsIgnoreCase(type.toString())) {
+            if (value instanceof Number) {
+                return ((Number) value).doubleValue();
+            } else {
+                try {
+                    return Double.parseDouble(value.toString());
+                } catch (NumberFormatException ignored) {
+                    return Double.NaN;
+                }
+            }
+        } else if ("String".equalsIgnoreCase(type.toString())) {
+            return value.toString();
+        } else if ("Boolean".equalsIgnoreCase(type.toString())) {
+            return value instanceof String ?
+                    Boolean.valueOf("true".equalsIgnoreCase((String) value)) :
+                    value instanceof Boolean ? value : Boolean.valueOf(false);
+        } else if ("Invocation".equalsIgnoreCase(type.toString())) {
+            return value instanceof JSONObject ? new Invocation((JSONObject) value) : new Invocation();
+        }
+        return unwrapJsonObject(value);
+    }
+
+    private static Map<Object, Object> toMap(JSONObject arg) {
+        if (arg == null) {
+            return null;
+        }
+        LinkedHashMap<Object, Object> map = new LinkedHashMap<>();
+        for (String key : (Iterable<String>) arg::keys) {
+            map.put(key, arg.opt(key));
+        }
+        return map;
+    }
+
+    public void setArgs(Object[] args) throws JSONException {
+        for (int i = 0; i < args.length; i++) {
+            args[i] = unwrapJsonObject(args[i]);
+        }
         this.args = args;
     }
 

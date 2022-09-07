@@ -26,15 +26,13 @@ public class MethodInvocation {
         return invoke(invocation);
     }
 
-    public Object invoke(Invocation invocation) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public Object invoke(Invocation invocation)
+            throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+            JSONException {
         if (StringUtils.isBlank(invocation.getMethod()))
             throw new EmptyInvocationInstructionException();
 
-        try {
-            Target target = invocation.getTarget();
-            return target.invoke(invocation);
-        } catch (Exception e) {
-            throw e;
-        }
+        Target target = invocation.getTarget();
+        return target.invoke(invocation);
     }
 }
