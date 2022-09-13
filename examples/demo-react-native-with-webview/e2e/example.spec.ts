@@ -43,10 +43,10 @@ describe('Example', () => {
       '        tracker.setValue(lastValue);\n' +
       '    }\n' +
       '    element.dispatchEvent(event);\n' +
-      '}', ["Some Content"]);
+      '}', ["Some Content 2"]);
 
     await buttonElement.tap();
 
-    await expect(inputElement).toHaveText("Some Content")
+    await expect(inputElement).toHaveText("Some Content 2")
   });
 });
