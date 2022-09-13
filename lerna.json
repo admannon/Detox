@@ -9,6 +9,7 @@
     "examples/demo-react-native",
     "examples/demo-react-native-detox-instruments",
     "examples/demo-react-native-jest",
+    "examples/demo-react-native-with-webview",
     "examples/demo-plugin",
     "generation",
     "."

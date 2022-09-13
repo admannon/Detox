@@ -195,6 +195,7 @@ This is in fact a monorepo that also sports some example projects (for usage ref
 - `examples/demo-native-ios`: Demonstrates usage of Detox in a pure-native iOS app.
 - `examples/demo-native-android` (broken): Demonstrates usage of Detox in a pure-native Android app.
 - `examples/demo-pure-native-android`: Demonstrates usage of the _pure_ [Detox-Native](https://github.com/wix/Detox/tree/master/detox-native/README.md) project
+- `examples/demo-react-native-with-webview`: Similar to as react `examples/demo-react-native` with webview components
 - more...
 
 **In order to run E2E tests associated with any of these projects, refer to the [project-specific](https://github.com/wix/Detox/tree/master/examples) READMEs.**
