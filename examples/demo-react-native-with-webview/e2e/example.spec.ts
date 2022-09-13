@@ -9,19 +9,20 @@ describe('Example', () => {
     await device.reloadReactNative();
   });
 
-  // it('should fill a text field', async () => {
-  //   let inputElement = web.element(by.web.id('standard-basic'));
-  //   let buttonElement = web.element(by.web.xpath('//button[@data-ga-event-action="click-back-to-top"]'))
-  //
-  //   await expect(inputElement).toExist()
-  //
-  //   await inputElement.scrollToView()
-  //   await inputElement.typeText("Some Content", false);
-  //
-  //   await buttonElement.tap();
-  //
-  //   await expect(inputElement).toHaveText("Some Content")
-  // });
+  it('should fill a text field', async () => {
+    let inputElement = web.element(by.web.id('standard-basic'));
+    let buttonElement = web.element(by.web.xpath('//button[@data-ga-event-action="click-back-to-top"]'))
+
+    await expect(inputElement).toExist()
+
+    await inputElement.scrollToView()
+    await inputElement.tap()
+    await inputElement.typeText("Some Content", false);
+
+    await buttonElement.tap();
+
+    await expect(inputElement).toHaveText("Some Content")
+  });
 
   it('should fill a react text field', async () => {
     let inputElement = web.element(by.web.id('standard-basic'));
